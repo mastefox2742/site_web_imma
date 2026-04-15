@@ -1,0 +1,99 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: cycles
+    // Fields:
+    //   - uid: string (required) - Owner ID
+    //   - startDate: string (required, YYYY-MM-DD) - Period start date
+    //   - createdAt: timestamp (required) - Creation time
+    //
+    // Collection: reports
+    // Fields:
+    //   - uid: string (required) - Owner ID
+    //   - timestamp: timestamp (required) - Report time
+    //   - riskLevel: string (required, Faible/Modéré/Élevé)
+    //   - createdAt: timestamp (required) - Creation time
+    //
+    // Collection: users
+    // Fields:
+    //   - uid: string (required) - User ID
+    //   - displayName: string (optional)
+    //   - averageCycleLength: number (optional)
+    //   - lastUpdated: timestamp (optional)
+    //
+    // ===============================================================
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+    
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+    
+    function isDocOwner() {
+      return isAuthenticated() && request.auth.uid == resource.data.uid;
+    }
+    
+    function uidUnchanged() {
+      return !('uid' in request.resource.data) || request.resource.data.uid == request.auth.uid;
+    }
+    
+    function isValidDateString(dateStr) {
+      return dateStr is string && dateStr.matches("^\\d{4}-\\d{2}-\\d{2}$");
+    }
+
+    function isValidRiskLevel(level) {
+      return level in ['Faible', 'Modéré', 'Élevé'];
+    }
+
+    // ===============================================================
+    // Rules
+    // ===============================================================
+
+    match /users/{userId} {
+      allow read: if isOwner(userId);
+      allow create: if isOwner(userId) && 
+                      request.resource.data.keys().hasAll(['uid']) &&
+                      request.resource.data.uid == userId;
+      allow update: if isOwner(userId) && 
+                      (!('uid' in request.resource.data) || request.resource.data.uid == userId);
+    }
+
+    match /cycles/{cycleId} {
+      allow read: if isAuthenticated() && resource.data.uid == request.auth.uid;
+      allow create: if isAuthenticated() && 
+                      request.resource.data.uid == request.auth.uid &&
+                      isValidDateString(request.resource.data.startDate) &&
+                      request.resource.data.createdAt is timestamp;
+      allow update, delete: if isAuthenticated() && resource.data.uid == request.auth.uid;
+    }
+
+    match /reports/{reportId} {
+      allow read: if isAuthenticated() && resource.data.uid == request.auth.uid;
+      allow create: if isAuthenticated() && 
+                      request.resource.data.uid == request.auth.uid &&
+                      request.resource.data.timestamp is timestamp &&
+                      isValidRiskLevel(request.resource.data.riskLevel) &&
+                      request.resource.data.createdAt is timestamp;
+      allow update, delete: if isAuthenticated() && resource.data.uid == request.auth.uid;
+    }
+
+    match /logs/{logId} {
+      allow read: if isAuthenticated() && resource.data.uid == request.auth.uid;
+      allow create: if isAuthenticated() && 
+                      request.resource.data.uid == request.auth.uid &&
+                      isValidDateString(request.resource.data.date);
+      allow update, delete: if isAuthenticated() && resource.data.uid == request.auth.uid;
+    }
+  }
+}

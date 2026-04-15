@@ -1,0 +1,38 @@
+{
+  "entities": {
+    "Cycle": {
+      "title": "Cycle",
+      "description": "Entrée de cycle menstruel.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "startDate": { "type": "string", "format": "date" },
+        "duration": { "type": "number" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "startDate"]
+    },
+    "DailyLog": {
+      "title": "DailyLog",
+      "description": "Symptômes, rapports et bio-marqueurs quotidiens.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "date": { "type": "string", "format": "date" },
+        "flow": { "type": "string", "enum": ["Léger", "Moyen", "Fort", "Aucun"] },
+        "sex": { "type": "string", "enum": ["Protégé", "Non-protégé", "Aucun"] },
+        "temperature": { "type": "number" },
+        "lhTest": { "type": "string", "enum": ["Positif", "Négatif", "Non fait"] },
+        "cervicalMucus": { "type": "string", "enum": ["Sèche", "Collante", "Crémeuse", "Aqueuse", "Blanc d'œuf"] },
+        "symptoms": { "type": "array", "items": { "type": "string" } },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "date"]
+    }
+  },
+  "firestore": {
+    "/cycles/{cycleId}": { "schema": "Cycle", "description": "Historique des cycles." },
+    "/logs/{logId}": { "schema": "DailyLog", "description": "Logs quotidiens de santé." },
+    "/users/{userId}": { "schema": "UserProfile", "description": "Profil utilisateur." }
+  }
+}

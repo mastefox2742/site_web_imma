@@ -1,0 +1,56 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  
+  --color-app-navy: #F0F7FF;
+  --color-app-navy-light: #FFFFFF;
+  --color-app-gold: #3D7AB0;
+  --color-app-gold-dark: #2C5E8C;
+  --color-app-gold-soft: #A8C4E8;
+  --color-app-gray: #000000;
+  --color-app-dark-gray: #E2E8F0;
+  --color-app-fox: #F38B4B;
+}
+
+@layer base {
+  body {
+    @apply bg-app-navy text-black font-sans antialiased select-none;
+  }
+}
+
+.clue-card {
+  @apply bg-app-navy-light rounded-2xl p-4 shadow-sm border border-app-gold/5;
+}
+
+.clue-pill {
+  @apply flex flex-col items-center justify-center p-3 rounded-2xl transition-all active:scale-95 border-2;
+}
+
+.clue-pill-active-red {
+  @apply bg-red-500/10 text-red-600 border-red-200;
+}
+
+.clue-pill-active-blue {
+  @apply bg-app-gold/10 text-app-gold border-app-gold/20;
+}
+
+.clue-pill-inactive {
+  @apply bg-slate-100 text-black border-transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #A8C4E8;
+  border-radius: 10px;
+}
+
+/* Calendar Dot styles */
+.dot-red { @apply w-1.5 h-1.5 rounded-full bg-red-500; }
+.dot-blue { @apply w-1.5 h-1.5 rounded-full bg-app-gold; }
